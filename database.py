@@ -183,6 +183,11 @@ class ResultSet(dict):
 
 
 class Database:
+    class ExistingChatError(Exception):
+        def __init__(self):
+            super().__init__('This chat is already registered.')
+
+
     def __init__(self, db_path="", debug=False, test=False):
         self.db_path = db_path
         self.debug = debug
@@ -369,6 +374,16 @@ class Database:
             IsEnabled=is_enabled,
             IsChannel=is_channel
         )
+
+    
+    def add_chat(self, chat_id, alarm_option=True) -> Chat:
+        if not self.is_exists('Chat', chat_id):
+            self.insert('Chat', ChatID=chat_id)
+            
+            return self.get_chat(chat_id=chat_id)
+        
+        else:
+            raise self.ExistingChatError
 
     
     def add_currency(self, currency_symbol: str):

@@ -2,6 +2,7 @@
 
 from telebot import TeleBot
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from database import Database
 
 
 def get_token(file_path):
@@ -12,10 +13,25 @@ def get_token(file_path):
 
 token = get_token("token.txt")
 bot = TeleBot(token)
+database = Database("database.db")
+
+
+@bot.message_handler(commands=['start'])
+def register_chat(message):
+    chat_id = message.chat.id
+
+    try:
+        database.add_chat(chat_id)
+    
+    except database.ExistingChatError:
+        bot.send_message(chat_id=chat_id, text="이미 등록된 채팅입니다.")
+
+    else:
+        bot.send_message(chat_id=chat_id, text="환영합니다! /addalarm 명령어로 알림을 추가해보세요.")
 
 
 @bot.message_handler(commands=['addalarm'])
-def start(message):
+def add_alarm(message):
     chat_id = message.chat.id
 
     markup = InlineKeyboardMarkup()
