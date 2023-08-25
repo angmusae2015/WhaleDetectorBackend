@@ -11,8 +11,13 @@ def get_token(file_path):
     return token
 
 
-token = get_token("token.txt")
-bot = TeleBot(token)
+def get_bot(file_path) -> TeleBot:
+    token = get_token(file_path)
+
+    return TeleBot(token)
+
+
+bot = get_bot("token.txt")
 database = Database("database.db")
 
 
@@ -40,4 +45,5 @@ def add_alarm(message):
     bot.send_message(chat_id=chat_id, text="알림 추가하기", reply_markup=markup)
 
 
-bot.infinity_polling()
+if __name__ == "__main__":
+    bot.infinity_polling()

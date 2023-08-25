@@ -1,9 +1,12 @@
 # 플라스크 백엔드 서버
 
+from telebot.apihelper import ApiTelegramException
+
 from flask import Flask, request
 from flask_cors import CORS
 from database import Database
 from exchange_proxy import Upbit, Binance
+from command_handler import get_bot
 import json
 
 app = Flask(__name__)
@@ -91,6 +94,38 @@ def get_binance_currency():
     currency_list = binance.get_currency(**(request.args))
 
     return json.dumps({'currency_info': currency_list})
+
+
+@app.route('/telegram/check-channel-id', methods=['GET'])
+def get_channel_id():
+    bot = get_bot("token.txt")
+
+    channel_link = ""
+    # 채널 링크 파싱
+    try:
+        channel_link = request.args['channel_link']
+
+    except KeyError:
+        return "잘못된 매개변수", 400
+
+    else:
+        pass
+    
+    sended_message = None
+    # 채널로 테스트 메시지 전송
+    try:
+        sended_message = bot.send_message('@' + channel_link, "test")
+
+    except ApiTelegramException as e:
+        error_code = e.error_code
+        error_msg = e.description
+
+        return json.dumps({'telegram_error': {error_code: error_msg}})
+
+    else:
+        chat_id = sended_message.chat.id
+
+        return json.dumps({'channel_id': chat_id})
 
 
 if __name__ == '__main__':
