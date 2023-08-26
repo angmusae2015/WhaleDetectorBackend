@@ -42,6 +42,33 @@ def get_channel_info():
     return json.dumps({'channel_info': channel_info})
 
 
+@app.route('/database/channel/add', methods=['POST'])
+def add_channel():
+    chat_id = name = id = None
+
+    # 매개변수 파싱
+    try:
+        chat_id = request.args['chat_id']
+        name = request.args['name']
+        id = request.args['id']
+    
+    except KeyError:
+        return "잘못된 매개변수", 400
+    
+    else:
+        pass
+
+    # 채널 등록
+    try:
+        database.add_channel(id=id, name=name, chat_id=chat_id)
+    
+    except:
+        return "채널 등록 실패", 500
+    
+    else:
+        return "채널 등록 성공", 200
+
+
 @app.route('/database/alarm/create', methods=['POST'])
 def add_alarm():
     params = json.loads(request.get_data())
