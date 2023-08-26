@@ -386,15 +386,15 @@ class Database:
             raise self.ExistingChatError
 
     
-    def add_channel(self, id, name, chat_id, alarm_option=True) -> Channel:
-        if not self.is_exists('Channel', id):
-            self.insert('Channel', ChannelID=id, ChannelName=name, ChatID=chat_id, AlarmOption=alarm_option)
+    def add_channel(self, channel_id, name, chat_id, alarm_option=True) -> Channel:
+        if not self.is_exists('Channel', channel_id):
+            self.insert('Channel', ChannelID=channel_id, ChannelName=name, ChatID=chat_id, AlarmOption=alarm_option)
 
-            return self.get_channel(channel_id=id)
+            return self.get_channel(channel_id=channel_id)
         
         else:
             raise self.ExistingChatError
-            
+
     
     def add_currency(self, currency_symbol: str):
         self.insert('Currency', CurrencySymbol=currency_symbol)

@@ -44,13 +44,14 @@ def get_channel_info():
 
 @app.route('/database/channel/add', methods=['POST'])
 def add_channel():
-    chat_id = name = id = None
+    chat_id = name = channel_id = None
 
     # 매개변수 파싱
     try:
-        chat_id = request.args['chat_id']
-        name = request.args['name']
-        id = request.args['id']
+        params = json.loads(request.get_data())
+        channel_id = params['channel_id']
+        name = params['name']
+        chat_id = params['chat_id']
     
     except KeyError:
         return "잘못된 매개변수", 400
@@ -60,9 +61,9 @@ def add_channel():
 
     # 채널 등록
     try:
-        database.add_channel(id=id, name=name, chat_id=chat_id)
+        database.add_channel(channel_id=channel_id, name=name, chat_id=chat_id)
     
-    except:
+    except KeyError:
         return "채널 등록 실패", 500
     
     else:
@@ -141,7 +142,7 @@ def get_channel_id():
     sended_message = None
     # 채널로 테스트 메시지 전송
     try:
-        sended_message = bot.send_message('@' + channel_link, "test")
+        sended_message = bot.send_message('@' + channel_link, "채널 ID 확인용 메시지입니다.")
 
     except ApiTelegramException as e:
         error_code = e.error_code
