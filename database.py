@@ -339,9 +339,11 @@ class Database:
 
 
     def get_object(self, obj_type, primary_key=None, **kwargs):
+        # 기본 키로 찾을 시 객체 하나만 반환
         if primary_key != None:
             return obj_type(self, primary_key)
         
+        # 기본 키가 아닌 조건으로 찾을 시 객체 리스트 반환
         else:
             obj_dict = self.select(obj_type.__name__, **{key: value for key, value in kwargs.items() if value != None})
             return [obj_type(self, key) for key in obj_dict.keys()]

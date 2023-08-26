@@ -4,7 +4,7 @@ from telebot.apihelper import ApiTelegramException
 
 from flask import Flask, request
 from flask_cors import CORS
-from database import Database
+from database import Database, ValueNotFoundInDatabaseError
 from exchange_proxy import Upbit, Binance
 from command_handler import get_bot
 import json
@@ -19,12 +19,28 @@ database_info_endpoint = '/database'
 chat_info_endpoint = '/chatinfo'
 
 
-@app.route('/database/chatinfo', methods=['GET'])
+@app.route('/database/chat/get', methods=['GET'])
 def get_chat_info():
-    if request.args.keys():
-        chat_info = [chat.to_dict() for chat in database.get_chat(**(request.args))]
+    chat_id = None
 
-    return json.dumps({'chat_info': chat_info})
+    # 매개변수 파싱
+    try:
+        param = request.args
+        chat_id = param['chat_id']
+    
+    except KeyError:
+        return "잘못된 매개변수", 400
+    
+    else:
+        pass
+
+    # 채팅 확인
+    try:
+        chat = database.get_chat(chat_id=chat_id)
+        return json.dumps({'chat_info': chat.to_dict()})
+    
+    except ValueNotFoundInDatabaseError:
+        return "잘못된 채팅 ID", 400
 
 
 @app.route('/database/exchangeinfo', methods=['GET'])
