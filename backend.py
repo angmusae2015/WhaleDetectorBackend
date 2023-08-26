@@ -79,7 +79,7 @@ def add_channel():
     try:
         database.add_channel(channel_id=channel_id, name=name, chat_id=chat_id)
     
-    except KeyError:
+    except:
         return "채널 등록 실패", 500
     
     else:
@@ -88,12 +88,43 @@ def add_channel():
 
 @app.route('/database/alarm/create', methods=['POST'])
 def add_alarm():
-    params = json.loads(request.get_data())
-    database.add_alarm(**params)
+    type = chat_id = is_channel = None
+    exchange_id = base_symbol = quote_symbol = quantity = None
 
-    print("Success!")
+    # 매개변수 파싱
+    try:
+        params = json.loads(request.get_data())
+        type = params['type']
+        chat_id = params['chat_id']
+        exchange_id = params['exchange_id']
+        base_symbol = params['base_symbol']
+        quote_symbol = params['quote_symbol']
+        quantity = params['quantity']
+        is_channel = params['is_channel']
 
-    return "Success!"
+    except KeyError:
+        return "잘못된 매개변수", 400
+    
+    else:
+        pass
+    
+    # 알림 추가
+    try:
+        database.add_alarm(
+            type=type,
+            chat_id=chat_id,
+            exchange_id=exchange_id,
+            base_symbol=base_symbol,
+            quote_symbol=quote_symbol,
+            quantity=quantity,
+            is_channel=is_channel
+        )
+    
+    except:
+        return "알림 추가 실패", 500
+    
+    else:
+        return "알림 추가 성공", 200
 
 
 @app.route('/upbit/itemlist', methods=['GET'])
