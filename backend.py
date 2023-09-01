@@ -11,8 +11,6 @@ import json
 
 app = Flask(__name__)
 CORS(app)
-database = Database("database.db")
-
 
 database_info_endpoint = '/database'
 
@@ -21,6 +19,7 @@ chat_info_endpoint = '/chatinfo'
 
 @app.route('/database/chat/get', methods=['GET'])
 def get_chat_info():
+    database = Database("database.db")
     chat_id = None
 
     # 매개변수 파싱
@@ -45,6 +44,7 @@ def get_chat_info():
 
 @app.route('/database/exchangeinfo', methods=['GET'])
 def get_exchange_info():
+    database = Database("database.db")
     exchange_info = [exchange.to_dict() for exchange in database.get_exchange(**(request.args))]
 
     return json.dumps({'exchange_info': exchange_info})
@@ -52,6 +52,7 @@ def get_exchange_info():
 
 @app.route('/database/channelinfo', methods=['GET'])
 def get_channel_info():
+    database = Database("database.db")
     if request.args.keys():
         channel_info = [channel.to_dict() for channel in database.get_channel(**(request.args))]
 
@@ -60,6 +61,7 @@ def get_channel_info():
 
 @app.route('/database/channel/add', methods=['POST'])
 def add_channel():
+    database = Database("database.db")
     chat_id = name = channel_id = None
 
     # 매개변수 파싱
@@ -88,6 +90,7 @@ def add_channel():
 
 @app.route('/database/alarm/create', methods=['POST'])
 def add_alarm():
+    database = Database("database.db")
     type = chat_id = is_channel = None
     exchange_id = base_symbol = quote_symbol = quantity = None
 
