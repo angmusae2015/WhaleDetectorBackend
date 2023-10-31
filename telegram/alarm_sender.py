@@ -1,10 +1,12 @@
 # 텔레그램 알림 전송
 
-import sqlite3
 import asyncio
 import aioschedule
-from database import Database
+
+import sqlite3
 from telebot.async_telebot import AsyncTeleBot
+
+from database import Database
 from exchange_proxy import Upbit, Binance
 
 
@@ -26,7 +28,6 @@ whale_alarm_interval = 30
 
 async def send_tick_alarm():
     enabled_alarm_list = db.get_alarm(type="TickAlarm", is_enabled=True)
-    # alarm_cache = []
     
     for enabled_alarm in enabled_alarm_list:
         alarm_exchange_id = enabled_alarm.get_exchange().id
