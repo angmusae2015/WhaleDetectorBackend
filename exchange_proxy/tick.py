@@ -17,9 +17,9 @@ class Tick:
         base_symbol = self.item.base_symbol
         quote_symbol = self.item.quote_symbol
         
-        msg = f"{exchange_name} {base_symbol}/{qoute_symbol} 체결 발생!\n\n"
+        msg = f"{exchange_name} {base_symbol}/{quote_symbol} 체결 발생!\n\n"
         msg += f"일시: {self.trade_time.strftime('%Y-%m-%d %H:%M:%S')}\n"
-        msg += f"체결량: {base_symbol} {self.quantity:,.3f}@{qoute_symbol} {self.price:,.2f}\n"
-        msg += f"총 거래량: {self.quantity * self.price:,.2f} {qoute_symbol}"
+        msg += f"체결량: {base_symbol} {self.quantity:,.3f}@{quote_symbol} {self.price:,.2f}\n"
+        msg += f"총 거래량: {self.quantity * self.price:,.2f} {quote_symbol}"
 
         return msg
