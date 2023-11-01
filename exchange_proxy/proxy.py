@@ -209,7 +209,7 @@ class Binance(Proxy):
         ask_orderbook_unit_tuple_list = orderbook_info['asks']
         bid_orderbook_unit_tuple_list = orderbook_info['bids']
 
-        item = Item(self.exchange, base_symbol, qoute_symbol)
+        item = Item(self.exchange, base_symbol, quote_symbol)
         check_time = datetime.now()
         ask_units = [
             OrderbookUnit(

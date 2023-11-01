@@ -5,7 +5,7 @@ from telebot import TeleBot
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 
 from database.database import Database
-from telegram.telegram import get_bot
+from telegram import get_bot
 
 if TYPE_CHECKING:
     from telegram import get_bot

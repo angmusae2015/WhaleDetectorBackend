@@ -6,8 +6,9 @@ import aioschedule
 import sqlite3
 from telebot.async_telebot import AsyncTeleBot
 
-from database import Database
-from exchange_proxy import Upbit, Binance
+from database.database import Database
+from database.alarm import Alarm
+from database.chat import Chat
 
 
 def get_token(file_path):
@@ -16,50 +17,60 @@ def get_token(file_path):
     return token
 
 
-token = get_token("token.txt")
+token = get_token("../token.txt")
 bot = AsyncTeleBot(token)
-db = Database("database.db")
-upbit = Upbit()
-binance = Binance()
+db = Database("../database/database.db")
 
 tick_alarm_interval = 5
 whale_alarm_interval = 30
 
 
 async def send_tick_alarm():
-    enabled_alarm_list = db.get_alarm(type="TickAlarm", is_enabled=True)
+    enabled_chat_list = db.get_chats(alarm_option=True).values()
+    alarm_list = []
     
-    for enabled_alarm in enabled_alarm_list:
-        alarm_exchange_id = enabled_alarm.get_exchange().id
-        exchange_proxy = upbit if alarm_exchange_id == 1 else binance
+    for enabled_chat in enabled_chat_list:
+        chat_id = enabled_chat['ChatID']
+        chat = Chat(db, chat_id)
 
-        base_symbol = enabled_alarm.get_base_symbol()
-        quote_symbol = enabled_alarm.get_quote_symbol()
+        alarm_list += chat.get_alarms(type='TickAlarm', is_enabled=True)
+
+    for alarm in alarm_list:
+        exchange_proxy = alarm.get_item().exchange.get_proxy()
+
+        base_symbol = alarm.get_item().base_symbol
+        quote_symbol = alarm.get_item().quote_symbol
 
         tick_list = exchange_proxy.get_recent_tick_list(base_symbol, quote_symbol, tick_alarm_interval, 500)
         for tick in tick_list:
-            if tick.quantity >= enabled_alarm.get_quantity():
-                chat_id = enabled_alarm.get_chat().id
+            if tick.quantity >= alarm.get_quantity():
+                chat_id = alarm.chat.id
                 await bot.send_message(chat_id, tick.write_tick_msg())
 
 
 async def send_whale_alarm():
-    enabled_alarm_list = db.get_alarm(type="WhaleAlarm", is_enabled=True)
+    enabled_chat_list = db.get_chats(alarm_option=True).values()
+    alarm_list = []
+    
+    for enabled_chat in enabled_chat_list:
+        chat_id = enabled_chat['ChatID']
+        chat = Chat(db, chat_id)
 
-    for enabled_alarm in enabled_alarm_list:
-        alarm_exchange_id = enabled_alarm.get_exchange().id
-        exchange_proxy = upbit if alarm_exchange_id == 1 else binance
+        alarm_list += chat.get_alarms(type='WhaleAlarm', is_enabled=True)
+    
+    for alarm in alarm_list:
+        exchange_proxy = alarm.get_item().exchange.get_proxy()
 
-        base_symbol = enabled_alarm.get_base_symbol()
-        quote_symbol = enabled_alarm.get_quote_symbol()
+        base_symbol = alarm.get_item().base_symbol
+        quote_symbol = alarm.get_item().quote_symbol
 
         orderbook = exchange_proxy.get_orderbook(base_symbol, quote_symbol)
-        for whale in orderbook.find_whale(enabled_alarm.get_quantity()):
-            chat_id = enabled_alarm.get_chat().id
+        for whale in orderbook.find_whale(alarm.get_quantity()):
+            chat_id = alarm.chat.id
             await bot.send_message(chat_id, whale.write_whale_msg())
+    
 
-
-async def send_alarm():
+async def run():
     aioschedule.every(tick_alarm_interval).seconds.do(send_tick_alarm)
     aioschedule.every(whale_alarm_interval).seconds.do(send_whale_alarm)
 
@@ -69,7 +80,7 @@ async def send_alarm():
 
 
 async def main():
-    task = asyncio.create_task(send_alarm())
+    task = asyncio.create_task(run())
 
     await asyncio.gather(task)
 
