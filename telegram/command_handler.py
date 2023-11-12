@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 bot = get_bot("../token.txt")
 database = Database("../database/database.db")
+frontend_url = "https://whale-detector-frontend.onrender.com"
 
 
 @bot.message_handler(commands=['start'])
@@ -34,7 +35,7 @@ def add_alarm(message):
     chat_id = message.chat.id
 
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton(text="열기", web_app=WebAppInfo(f"https://whaledetector.kro.kr/add-alarm?chat={chat_id}")))
+    markup.add(InlineKeyboardButton(text="열기", web_app=WebAppInfo(f"{frontend_url}/add-alarm?chat={chat_id}")))
 
     bot.send_message(chat_id=chat_id, text="알림 추가하기", reply_markup=markup)
 
@@ -44,7 +45,7 @@ def add_channel(message):
     chat_id = message.chat.id
 
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton(text="열기", web_app=WebAppInfo(f"https://whaledetector.kro.kr/add-channel?chat={chat_id}")))
+    markup.add(InlineKeyboardButton(text="열기", web_app=WebAppInfo(f"{frontend_url}/add-channel?chat={chat_id}")))
 
     bot.send_message(chat_id=chat_id, text="채널 등록하기", reply_markup=markup)
 
@@ -54,7 +55,7 @@ def edit_alarm(message):
     chat_id = message.chat.id
 
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton(text="열기", web_app=WebAppInfo(f"https://whaledetector.kro.kr/edit-alarm?chat={chat_id}")))
+    markup.add(InlineKeyboardButton(text="열기", web_app=WebAppInfo(f"{frontend_url}/edit-alarm?chat={chat_id}")))
 
     bot.send_message(chat_id=chat_id, text="알림 On/Off", reply_markup=markup)
 
