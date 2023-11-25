@@ -1,5 +1,6 @@
 test.py
 token.txt
+token.json
 database.db
 
 __pycache__/
