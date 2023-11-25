@@ -39,7 +39,7 @@ cur.execute("""CREATE TABLE Alarm (
     AlarmCondition JSON NOT NULL,
     IsEnabled BOOLEAN NOT NULL DEFAULT TRUE,
 
-    FOREIGN KEY (ExchangeID) REFERENCES Exchange(ExchangeID) ON DELETE CASECADE,
+    FOREIGN KEY (ExchangeID) REFERENCES Exchange(ExchangeID) ON DELETE CASCADE,
     FOREIGN KEY (ChannelID) REFERENCES Channel(ChannelID) ON DELETE CASCADE
 );""")
 
