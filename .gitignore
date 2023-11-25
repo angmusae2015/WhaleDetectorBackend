@@ -1,5 +1,3 @@
-test.py
-token.txt
-database.db
+token.json
 
 __pycache__/
