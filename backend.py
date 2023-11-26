@@ -14,8 +14,10 @@ from exchange import get_exchange
 app = Flask(__name__)
 CORS(app)
 
+token_file_path = '/etc/secrets/token.json'
+
 database = None
-with open('./token.json', 'r') as file:
+with open(token_file_path, 'r') as file:
     tokens = json.load(file)
     database = Database(tokens['database_url'])
 
@@ -367,7 +369,7 @@ def get_items(exchange_id: int):
 @app.get('/telegram/get-channel-id')
 def get_channel_id():
     bot = None
-    with open('token.txt', 'r') as file:
+    with open(token_file_path, 'r') as file:
         token = file.read().strip()
         bot = TeleBot(token)
 
