@@ -95,7 +95,7 @@ class Database:
     def get_columns(self, table_name: str) -> list:
         result_set = self.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name='{table_name}';")
 
-        return result_set.keys()
+        return list(result_set.keys())
         
     
     # SELECT문 실행
@@ -116,17 +116,19 @@ class Database:
         columns = tuple(kwargs.keys())
         values = tuple(kwargs.values())
 
-        query = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({self.to_parameter_statement(', ', *values)}) RETURNING {table_name}ID;"
+        query = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({self.to_parameter_statement(', ', *values)}) RETURNING {table_name}_id;"
         
         result_set = self.execute(query)
         
-        return result_set.column[0]
+        return result_set.to_list()[0][0]
     
     
     # UPDATE문 실행
     def update(self, table_name: str, primary_key, **kwargs):
         primary_key_column = self.get_columns(table_name)[0]
-        query = f"UPDATE {table_name} SET {', '.join(columns)} WHERE {primary_key_column}={self.to_comparison_value(primary_key)}"
+        columns = list(kwargs.keys())
+
+        query = f"UPDATE {table_name} SET {self.to_parameter_statement(**kwargs)} WHERE {primary_key_column}={self.to_comparison_value(primary_key)}"
 
         self.execute(query)
 
@@ -151,23 +153,23 @@ class Database:
         else:
             condition_state = self.parameter_statement(**kwargs)
         
-        query = f"SELECT EXISTS(SELECT {table_name}id FROM {table_name} WHERE {condition_state});"
+        query = f"SELECT EXISTS(SELECT {table_name}_id FROM {table_name} WHERE {condition_state});"
         result_set = self.execute(query)
 
         return bool(result_set.to_list()[0][0])
 
     
     def is_exchange_exists(self, exchange_id: int) -> bool:
-        return self.is_exists(table_name='Exchange', primary_key=exchange_id)
+        return self.is_exists(table_name='exchange', primary_key=exchange_id)
 
     
     def is_chat_exists(self, chat_id: int) -> bool:
-        return self.is_exists(table_name='Chat', primary_key=chat_id)
+        return self.is_exists(table_name='chat', primary_key=chat_id)
 
 
     def is_channel_exists(self, channel_id: int) -> bool:
-        return self.is_exists(table_name='Channel', primary_key=channel_id)
+        return self.is_exists(table_name='channel', primary_key=channel_id)
 
     
     def is_alarm_exists(self, alarm_id: int) -> bool:
-        return self.is_exists(table_name='Alarm', primary_key=alarm_id)
+        return self.is_exists(table_name='alarm', primary_key=alarm_id)
