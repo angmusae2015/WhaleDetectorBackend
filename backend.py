@@ -22,35 +22,35 @@ with open('./token.json', 'r') as file:
 
 def channel_row_to_dict(row) -> dict:
     return {
-        'id': row['ChannelID'],
-        'name': row['ChannelName']
+        'id': row['channel_id'],
+        'name': row['channel_name']
     }
 
 
 def alarm_row_to_dict(row) -> dict:
     return {
-        'id': row['AlarmID'],
+        'id': row['alarm_id'],
         'item': {
-            'exchange_id': row['ExchangeID'],
-            'base_symbol': row['BaseSymbol'],
-            'quote_symbol': row['QuoteSymbol']
+            'exchange_id': row['exchange_id'],
+            'base_symbol': row['base_symbol'],
+            'quote_symbol': row['quote_symbol']
         },
-        'condition': row['AlarmCondition'],
-        'is_enabled': row['IsEnabled']
+        'condition': row['alarm_condition'],
+        'is_enabled': row['is_enabled']
     }
 
 
 def exchange_row_to_dict(row) -> dict:
     return {
-        'id': row['ExchangeID'],
-        'name': row['ExchangeName']
+        'id': row['exchange_id'],
+        'name': row['exchange_name']
     }
 
 
 # 채팅 목록 요청
 @app.get('/chats')
 def get_chats():
-    chat_id_list = list(database.select(table_name='Chat').keys())
+    chat_id_list = list(database.select(table_name='chat').keys())
 
     return json.dumps({
         'chats': chat_id_list
@@ -63,7 +63,7 @@ def post_chat(chat_id: int):
         return "이미 등록된 채팅"
     
     try:
-        database.insert(table_name='Chat', ChatID=chat_id)
+        database.insert(table_name='chat', chat_id=chat_id)
 
     except Exception as e:
         return f"등록 실패: {e.args[0]}", 400
@@ -78,7 +78,7 @@ def delete_chat(chat_id: int):
         return '등록되지 않은 채팅', 400
 
     try:
-        database.delete(table_name='Chat', ChatID=chat_id)
+        database.delete(table_name='chat', chat_id=chat_id)
     
     except Exception as e:
         return f"삭제 실패: {e.args[0]}", 400
@@ -89,7 +89,7 @@ def delete_chat(chat_id: int):
 # 채널 목록 요청
 @app.get('/channels')
 def get_channels():
-    result_set = database.select(table_name='Channel')
+    result_set = database.select(table_name='channel')
 
     channel_dict_list = [
         channel_row_to_dict(row) for row in result_set.to_list()
@@ -117,7 +117,7 @@ def post_channel():
         return '이미 등록된 채널', 400
 
     try:
-        database.insert(table_name='Channel', ChannelID=channel_id, ChannelName=channel_name)
+        database.insert(table_name='channel', channel_id=channel_id, channel_name=channel_name)
     
     except Exception as e:
         return f"등록 실패: {e.args[0]}", 400
@@ -132,7 +132,7 @@ def delete_channel(channel_id: int):
         return '등록되지 않은 채팅', 400
 
     try:
-        database.delete(table_name='Channel', ChannelID=channel_id)
+        database.delete(table_name='channel', channel_id=channel_id)
 
     except Exception as e:
         return f"삭제 실패: {e.args[0]}", 400
@@ -146,7 +146,7 @@ def get_channel_info(channel_id: int):
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채널', 400
 
-    result_set = database.select(table_name='Channel', ChannelID=channel_id)
+    result_set = database.select(table_name='channel', channel_id=channel_id)
     row = result_set[channel_id]
 
     return json.dumps(channel_row_to_dict(row))
@@ -158,7 +158,7 @@ def get_alarms(channel_id: int):
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채널', 400
 
-    result_set = database.select(table_name='Alarm', ChannelID=channel_id)
+    result_set = database.select(table_name='alarm', channel_id=channel_id)
 
     alarm_dict_list = [
         alarm_row_to_dict(row) for row in result_set.to_list()
@@ -180,18 +180,18 @@ def post_alarm(channel_id: int):
     added_alarm_id = None
     try:
         added_alarm_id = database.insert(
-            table_name='Alarm',
-            ExchangeID=params['exchange_id'],
-            BaseSymbol=params['base_symbol'],
-            QuoteSymbol=params['quote_symbol'],
-            AlarmCondition=params['condition']
+            table_name='alarm',
+            exchange_id=params['exchange_id'],
+            base_symbol=params['base_symbol'],
+            quote_symbol=params['quote_symbol'],
+            alarm_condition=params['condition']
         )
     
     except Exception as e:
         return "잘못된 매개변수", 400
 
     else:
-        added_alarm_row = database.select(table_name='Alarm', AlarmID=added_alarm_id)[added_alarm_id]
+        added_alarm_row = database.select(table_name='alarm', alarm_id=added_alarm_id)[added_alarm_id]
 
         return json.dumps(alarm_row_to_dict(added_alarm_row))
 
@@ -202,7 +202,7 @@ def get_alarm_info(channel_id: int, alarm_id: int):
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채널', 400
 
-    result_set = database.select(table_name='Alarm', AlarmID=alarm_id)
+    result_set = database.select(table_name='alarm', alarm_id=alarm_id)
     if len(result_set) == 0:
         return '등록되지 않은 알림', 400
 
@@ -220,12 +220,12 @@ def patch_alarm_info(channel_id: int, alarm_id: int):
 
     params = request.json
     if 'condition' in params.keys():
-        database.update(table_name='Alarm', primary_key=alarm_id, AlarmCondition=params['condition'])
+        database.update(table_name='alarm', primary_key=alarm_id, alarm_condition=params['condition'])
     
     if 'is_enabled' in params.keys():
-        database.update(table_name='Alarm', primary_key=alarm_id, IsEnabled=params['is_enabled'])
+        database.update(table_name='alarm', primary_key=alarm_id, is_enabled=params['is_enabled'])
 
-    alarm_row = database.select(table_name='Alarm', AlarmID=alarm_id)[alarm_id]
+    alarm_row = database.select(table_name='alarm', alarm_id=alarm_id)[alarm_id]
 
     return json.dumps(alarm_row_to_dict(alarm_row))
 
@@ -239,7 +239,7 @@ def delete_alarm(channel_id: int, alarm_id: int):
     if not database.is_alarm_exists(alarm_id):
         return '등록되지 않은 알림', 400
 
-    database.delete(table_name='Alarm', AlarmID=alarm_id)
+    database.delete(table_name='alarm', alarm_id=alarm_id)
 
     return "삭제 성공", 200
 
@@ -247,7 +247,7 @@ def delete_alarm(channel_id: int, alarm_id: int):
 # 거래소 목록 요청
 @app.get('/exchanges')
 def get_exchanges():
-    result_set = database.select(table_name='Exchange')
+    result_set = database.select(table_name='exchange')
     exchange_dict_list = [exchange_row_to_dict(row) for row in result_set.to_list()]
 
     return json.dumps({
@@ -261,7 +261,7 @@ def get_exchange_info(exchange_id: int):
     if not database.is_exchange_exists(exchange_id):
         return "존재하지 않는 거래소", 400
 
-    result_set = database.select(table_name='Exchange', ExchangeID=exchange_id)
+    result_set = database.select(table_name='exchange', exchange_id=exchange_id)
     exchange_row = result_set[exchange_id]
 
     return json.dumps(exchange_row_to_dict(exchange_row))
