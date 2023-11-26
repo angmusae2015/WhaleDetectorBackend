@@ -59,7 +59,14 @@ def get_chats():
 # 채팅 등록
 @app.post('/chats/<int:chat_id>')
 def post_chat(chat_id: int):
-    database.insert(table_name='Chat', ChatID=chat_id)
+    if database.is_chat_exists(chat_id):
+        return "이미 등록된 채팅"
+    
+    try:
+        database.insert(table_name='Chat', ChatID=chat_id)
+
+    except Exception as e:
+        return f"등록 실패: {e.args[0]}", 400
 
     return '등록 성공', 200
 
@@ -70,7 +77,11 @@ def delete_chat(chat_id: int):
     if not database.is_chat_exists(chat_id):
         return '등록되지 않은 채팅', 400
 
-    database.delete(table_name='Chat', ChatID=chat_id)
+    try:
+        database.delete(table_name='Chat', ChatID=chat_id)
+    
+    except Exception as e:
+        return f"삭제 실패: {e.args[0]}", 400
 
     return "삭제 성공", 200
 
