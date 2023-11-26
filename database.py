@@ -42,8 +42,15 @@ class Database:
             'exchange_id': int,
             'base_symbol': str,
             'quote_symbol': str,
-            'alarm_condition': dict,
+            'condition_id': int,
             'is_enabled': bool
+        },
+        'condition': {
+            'condition_id': int,
+            'whale': dict,
+            'tick': dict,
+            'bollinger_band': dict,
+            'rsi': dict
         }
     }
 
@@ -53,10 +60,9 @@ class Database:
             super().__init__('This data already exists.')
 
 
-    def __init__(self, database_url: str, debug=False, test=False):
+    def __init__(self, database_url: str, debug=False):
         self.conn = connect(database_url)
         self.debug = debug
-        self.test = test
 
         self.conn.autocommit = True
 
@@ -68,6 +74,12 @@ class Database:
     def to_comparison_value(value):
         if type(value) == str:
             return f'\'{value}\''
+
+        elif type(value) == dict:
+            return f"\'{json.dumps(value)}\'"
+
+        elif value == None:
+            return 'null'
         
         else:
             return str(value)
@@ -94,19 +106,22 @@ class Database:
             print("================")
             print(f"Query: {query}")
 
-        if not self.test:
-            cursor = self.conn.cursor()
-            cursor.execute(query)
+        cursor = self.conn.cursor()
+        cursor.execute(query)
 
-            try:
-                column = [tu[0] for tu in cursor.description]
-                result = cursor.fetchall()
+        try:
+            column = [tu[0] for tu in cursor.description]
+            result = cursor.fetchall()
 
-            except TypeError:
-                return ResultSet([], [])
+        except TypeError:
+            return ResultSet([], [])
 
-            else:
-                return ResultSet(column, result)    # 결과 집합 반환
+        else:
+            result_set = ResultSet(column, result)
+            if self.debug:
+                print(result_set)
+
+            return result_set   # 결과 집합 반환
 
     
     # 해당 테이블의 컬럼명 반환
@@ -156,7 +171,8 @@ class Database:
         query = f"DELETE FROM {table_name}"
 
         # 조건 지정
-        if kwargs != None:
+        if kwargs != {}:
+            print(kwargs)
             query += " WHERE " + self.to_parameter_statement(**kwargs)
 
         self.execute(query)
