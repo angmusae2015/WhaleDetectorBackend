@@ -92,7 +92,7 @@ def get_channels():
     result_set = database.select(table_name='channel')
 
     channel_dict_list = [
-        channel_row_to_dict(row) for row in result_set.to_list()
+        channel_row_to_dict(row) for row in result_set.values()
     ]
 
     return json.dumps({
@@ -167,7 +167,7 @@ def get_alarms(channel_id: str):
     result_set = database.select(table_name='alarm', channel_id=channel_id)
 
     alarm_dict_list = [
-        alarm_row_to_dict(row) for row in result_set.to_list()
+        alarm_row_to_dict(row) for row in result_set.values()
     ]
 
     return json.dumps({
@@ -262,7 +262,7 @@ def delete_alarm(channel_id: str, alarm_id: int):
 @app.get('/exchanges')
 def get_exchanges():
     result_set = database.select(table_name='exchange')
-    exchange_dict_list = [exchange_row_to_dict(row) for row in result_set.to_list()]
+    exchange_dict_list = [exchange_row_to_dict(row) for row in result_set.values()]
 
     return json.dumps({
         'exchanges': exchange_dict_list
