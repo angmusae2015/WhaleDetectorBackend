@@ -18,7 +18,7 @@ cur.execute("""CREATE TABLE exchange (
 cur.execute("""INSERT INTO exchange (exchange_name) VALUES ('업비트');""")
 cur.execute("""INSERT INTO exchange (exchange_name) VALUES ('바이낸스');""")
 
-# 채팅 설정 테이블
+# 채팅 정보 테이블
 cur.execute("""CREATE TABLE chat (
     chat_id BIGINT PRIMARY KEY
 );""")
@@ -28,19 +28,29 @@ cur.execute("""CREATE TABLE channel (
     channel_id BIGINT PRIMARY KEY,
     channel_name TEXT NOT NULL
 );""")
+
+# 알림 규칙 테이블
+cur.execute("""CREATE TABLE condition (
+    condition_id SERIAL PRIMARY KEY,
+    whale JSON,
+    tick JSON,
+    bollinger_band JSON,
+    rsi JSON
+);""")
     
-# 알림 설정 규칙 테이블
+# 알림 정보 테이블
 cur.execute("""CREATE TABLE alarm (
     alarm_id SERIAL PRIMARY KEY,
     channel_id BIGINT NOT NULL,
     exchange_id INTEGER NOT NULL,
     base_symbol TEXT NOT NULL,
     quote_symbol TEXT NOT NULL,
-    alarm_condition JSON NOT NULL,
+    condition_id INTEGER NOT NULL,
     is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
 
     FOREIGN KEY (exchange_id) REFERENCES exchange(exchange_id) ON DELETE CASCADE,
-    FOREIGN KEY (channel_id) REFERENCES channel(channel_id) ON DELETE CASCADE
+    FOREIGN KEY (channel_id) REFERENCES channel(channel_id) ON DELETE CASCADE,
+    FOREIGN KEY (condition_id) REFERENCES condition(condition_id) ON DELETE CASCADE
 );""")
 
 conn.commit()
