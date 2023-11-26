@@ -89,6 +89,46 @@ def get_channels():
     })
 
 
+# 채널 등록
+@app.post('/channels')
+def post_channel():
+    params = json.loads(request.get_data())
+
+    channel_id, channel_name = None, None
+    try:
+        channel_id = params['channel_id']
+        channel_name = params['channel_name']
+
+    except Exception as e:
+        return "잘못된 매개 변수", 400
+
+    if database.is_channel_exists(channel_id):
+        return '이미 등록된 채널', 400
+
+    try:
+        database.insert(table_name='Channel', ChannelID=channel_id, ChannelName=channel_name)
+    
+    except Exception as e:
+        return f"등록 실패: {e.args[0]}", 400
+
+    return '등록 성공', 200
+
+
+# 채널 삭제
+@app.delete('/channels/<int:channel_id>')
+def delete_channel(channel_id: int):
+    if not database.is_channel_exists(channel_id):
+        return '등록되지 않은 채팅', 400
+
+    try:
+        database.delete(table_name='Channel', ChannelID=channel_id)
+
+    except Exception as e:
+        return f"삭제 실패: {e.args[0]}", 400
+
+    return "삭제 성공", 200
+
+
 # 채널 정보 요청
 @app.get('/channels/<int:channel_id>')
 def get_channel_info(channel_id: int):
