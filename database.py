@@ -116,17 +116,17 @@ class Database:
         columns = tuple(kwargs.keys())
         values = tuple(kwargs.values())
 
-        query = f"INSERT INTO {table_name} ({self.to_parameter_statement(', ', *columns)}) VALUES ({self.to_parameter_statement(', ', *values)}) RETURNING {table_name}id;"
+        query = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({self.to_parameter_statement(', ', *values)}) RETURNING {table_name}ID;"
         
         result_set = self.execute(query)
         
-        return result_set.keys()[0]
+        return result_set.column[0]
     
     
     # UPDATE문 실행
     def update(self, table_name: str, primary_key, **kwargs):
         primary_key_column = self.get_columns(table_name)[0]
-        query = f"UPDATE {table_name} SET {self.to_parameter_statement(', ', **kwargs)} WHERE {primary_key_column}={self.to_comparison_value(primary_key)}"
+        query = f"UPDATE {table_name} SET {', '.join(columns)} WHERE {primary_key_column}={self.to_comparison_value(primary_key)}"
 
         self.execute(query)
 
