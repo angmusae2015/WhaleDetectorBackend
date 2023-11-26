@@ -50,11 +50,29 @@ def exchange_row_to_dict(row) -> dict:
 # 채팅 목록 요청
 @app.get('/chats')
 def get_chats():
-    chat_id_list = database.select(table_name='Chat').keys()
+    chat_id_list = list(database.select(table_name='Chat').keys())
 
     return json.dumps({
         'chats': chat_id_list
     })
+
+# 채팅 등록
+@app.post('/chats/<int:chat_id>')
+def post_chat(chat_id: int):
+    database.insert(table_name='Chat', ChatID=chat_id)
+
+    return '등록 성공', 200
+
+
+# 채팅 삭제
+@app.delete('/chats/<int:chat_id>')
+def delete_chat(chat_id: int):
+    if not database.is_chat_exists(chat_id):
+        return '등록되지 않은 채팅', 400
+
+    database.delete(table_name='Chat', ChatID=chat_id)
+
+    return "삭제 성공", 200
 
 
 # 채널 목록 요청
@@ -107,9 +125,6 @@ def post_alarm(channel_id: int):
         return '등록되지 않은 채널', 400
 
     params = json.loads(request.get_data())
-
-    if not params['type'] in ['WhaleAlarm', 'TickAlarm']:
-        return "잘못된 알림 유형", 400
 
     added_alarm_id = None
     try:
