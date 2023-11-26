@@ -20,19 +20,19 @@ cur.execute("""INSERT INTO Exchange (ExchangeName) VALUES ('바이낸스');""")
 
 # 채팅 설정 테이블
 cur.execute("""CREATE TABLE Chat (
-    ChatID INTEGER PRIMARY KEY
+    ChatID BIGINT PRIMARY KEY
 );""")
 
 # 채널 정보 테이블
 cur.execute("""CREATE TABLE Channel (
-    ChannelID INTEGER PRIMARY KEY,
+    ChannelID BIGINT PRIMARY KEY,
     ChannelName TEXT NOT NULL
 );""")
     
 # 알림 설정 규칙 테이블
 cur.execute("""CREATE TABLE Alarm (
     AlarmID SERIAL PRIMARY KEY,
-    ChannelID INTEGER NOT NULL,
+    ChannelID BIGINT NOT NULL,
     ExchangeID INTEGER NOT NULL,
     BaseSymbol TEXT NOT NULL,
     QuoteSymbol TEXT NOT NULL,
