@@ -24,6 +24,30 @@ class ResultSet(dict):
 
 
 class Database:
+    schema = {
+        'exchange': {
+            'exchange_id': int,
+            'exchange_name': str
+        },
+        'chat': {
+            'chat_id': int
+        },
+        'channel': {
+            'channel_id': int,
+            'channel_name': str
+        },
+        'alarm': {
+            'alarm_id': int,
+            'channel_id': int,
+            'exchange_id': int,
+            'base_symbol': str,
+            'quote_symbol': str,
+            'alarm_condition': dict,
+            'is_enabled': bool
+        }
+    }
+
+
     class ExistingDataError(Exception):
         def __init__(self):
             super().__init__('This data already exists.')
@@ -92,10 +116,10 @@ class Database:
 
     
     # 해당 테이블의 컬럼명 반환
-    def get_columns(self, table_name: str) -> list:
-        result_set = self.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name='{table_name}';")
+    def get_primary_column(self, table_name: str) -> str:
+        primary_column = list(self.schema[table_name].keys())[0]
 
-        return list(result_set.keys())
+        return primary_column
         
     
     # SELECT문 실행
@@ -125,10 +149,10 @@ class Database:
     
     # UPDATE문 실행
     def update(self, table_name: str, primary_key, **kwargs):
-        primary_key_column = self.get_columns(table_name)[0]
+        primary_column = self.get_primary_column(table_name)
         columns = list(kwargs.keys())
 
-        query = f"UPDATE {table_name} SET {self.to_parameter_statement(**kwargs)} WHERE {primary_key_column}={self.to_comparison_value(primary_key)}"
+        query = f"UPDATE {table_name} SET {self.to_parameter_statement(**kwargs)} WHERE {primary_column}={self.to_comparison_value(primary_key)}"
 
         self.execute(query)
 
@@ -147,8 +171,8 @@ class Database:
     # 해당 열이 해당 테이블에 존재하는지 확인
     def is_exists(self, table_name: str, primary_key=None, **kwargs) -> bool:
         if primary_key != None:
-            primary_key_column = self.get_columns(table_name)[0]
-            condition_state = f"{primary_key_column}={self.to_comparison_value(primary_key)}"
+            primary_column = self.get_primary_column(table_name)
+            condition_state = f"{primary_column}={self.to_comparison_value(primary_key)}"
 
         else:
             condition_state = self.parameter_statement(**kwargs)
