@@ -27,7 +27,39 @@ def channel_row_to_dict(row) -> dict:
     }
 
 
+def condition_row_to_dict(row) -> dict:
+    condition_dict = {}
+
+    if row['whale'] != None:
+        condition_dict['whale'] = {
+            'quantity': row['whale']['quantity']
+        }
+    
+    if row['tick'] != None:
+        condition_dict['tick'] = {
+            'quantity': row['tick']['quantity']
+        }
+
+    if row['bollinger_band'] != None:
+        condition_dict['bollinger_band'] = {
+            'period': row['bollinger_band']['period'],
+            'standard_deviation': row['bollinger_band']['standard_deviation']
+        }
+    
+    if row['rsi'] != None:
+        condition_dict['rsi'] = {
+            'period': row['rsi']['period'],
+            'quantity': row['rsi']['quantity']
+        }
+        
+    return condition_dict
+
+
 def alarm_row_to_dict(row) -> dict:
+    condition_id = row['condition_id']
+    condition_row = database.select('condition', condition_id=condition_id)[condition_id]
+    condition_dict = condition_row_to_dict(condition_row)
+
     return {
         'id': row['alarm_id'],
         'item': {
@@ -35,7 +67,7 @@ def alarm_row_to_dict(row) -> dict:
             'base_symbol': row['base_symbol'],
             'quote_symbol': row['quote_symbol']
         },
-        'condition': row['alarm_condition'],
+        'condition': condition_dict,
         'is_enabled': row['is_enabled']
     }
 
@@ -185,18 +217,30 @@ def post_alarm(channel_id: str):
 
     params = json.loads(request.get_data())
 
+    added_condition_id = None
+    try:
+        added_condition_id = database.insert(
+            table_name='condition',
+            **(params['condition'])
+        )
+
+    except Exception as e:
+        return "알림 규칙 등록 실패", 400
+
+
     added_alarm_id = None
     try:
         added_alarm_id = database.insert(
             table_name='alarm',
+            channel_id=params['channel_id'],
             exchange_id=params['exchange_id'],
             base_symbol=params['base_symbol'],
             quote_symbol=params['quote_symbol'],
-            alarm_condition=params['condition']
+            condition_id=added_condition_id
         )
     
     except Exception as e:
-        return "잘못된 매개변수", 400
+        return f"알림 등록 실패: {e.args[0]}", 400
 
     else:
         added_alarm_row = database.select(table_name='alarm', alarm_id=added_alarm_id)[added_alarm_id]
@@ -232,7 +276,8 @@ def patch_alarm_info(channel_id: str, alarm_id: int):
 
     params = request.json
     if 'condition' in params.keys():
-        database.update(table_name='alarm', primary_key=alarm_id, alarm_condition=params['condition'])
+        condition_id = database.select('alarm', alarm_id=alarm_id)[alarm_id]['condition_id']
+        database.update(table_name='condition', primary_key=condition_id, **(params['condition']))
     
     if 'is_enabled' in params.keys():
         database.update(table_name='alarm', primary_key=alarm_id, is_enabled=params['is_enabled'])
