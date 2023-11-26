@@ -126,8 +126,10 @@ def post_channel():
 
 
 # 채널 삭제
-@app.delete('/channels/<int:channel_id>')
-def delete_channel(channel_id: int):
+@app.delete('/channels/<str:channel_id>')
+def delete_channel(channel_id: str):
+    channel_id = int(channel_id)
+
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채팅', 400
 
@@ -141,8 +143,10 @@ def delete_channel(channel_id: int):
 
 
 # 채널 정보 요청
-@app.get('/channels/<int:channel_id>')
-def get_channel_info(channel_id: int):
+@app.get('/channels/<str:channel_id>')
+def get_channel_info(channel_id: str):
+    channel_id = int(channel_id)
+
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채널', 400
 
@@ -153,8 +157,10 @@ def get_channel_info(channel_id: int):
 
 
 # 채널의 알림 목록 요청
-@app.get('/channels/<int:channel_id>/alarms')
-def get_alarms(channel_id: int):
+@app.get('/channels/<str:channel_id>/alarms')
+def get_alarms(channel_id: str):
+    channel_id = int(channel_id)
+
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채널', 400
 
@@ -170,8 +176,10 @@ def get_alarms(channel_id: int):
 
 
 # 채널에 알림 등록
-@app.post('/channels/<int:channel_id>/alarms')
-def post_alarm(channel_id: int):
+@app.post('/channels/<str:channel_id>/alarms')
+def post_alarm(channel_id: str):
+    channel_id = int(channel_id)
+
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채널', 400
 
@@ -197,8 +205,10 @@ def post_alarm(channel_id: int):
 
 
 # 채널의 알림 정보 요청
-@app.get('/channels/<int:channel_id>/alarms/<int:alarm_id>')
-def get_alarm_info(channel_id: int, alarm_id: int):
+@app.get('/channels/<str:channel_id>/alarms/<int:alarm_id>')
+def get_alarm_info(channel_id: str, alarm_id: int):
+    channel_id = int(channel_id)
+
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채널', 400
 
@@ -210,8 +220,10 @@ def get_alarm_info(channel_id: int, alarm_id: int):
 
 
 # 채널의 알림 정보 수정
-@app.patch('/channels/<int:channel_id>/alarms/<int:alarm_id>')
-def patch_alarm_info(channel_id: int, alarm_id: int):
+@app.patch('/channels/<str:channel_id>/alarms/<int:alarm_id>')
+def patch_alarm_info(channel_id: str, alarm_id: int):
+    channel_id = int(channel_id)
+
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채널', 400
 
@@ -231,8 +243,10 @@ def patch_alarm_info(channel_id: int, alarm_id: int):
 
 
 # 채널에서 알림 삭제
-@app.delete('/channels/<int:channel_id>/alarms/<int:alarm_id>')
-def delete_alarm(channel_id: int, alarm_id: int):
+@app.delete('/channels/<str:channel_id>/alarms/<int:alarm_id>')
+def delete_alarm(channel_id: str, alarm_id: int):
+    channel_id = int(channel_id)
+    
     if not database.is_channel_exists(channel_id):
         return '등록되지 않은 채널', 400
 
