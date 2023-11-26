@@ -68,12 +68,6 @@ class Database:
     def to_comparison_value(value):
         if type(value) == str:
             return f'\'{value}\''
-
-        elif type(value) == bool:
-            return str(int(value))
-        
-        elif value == None:
-            return None
         
         else:
             return str(value)
@@ -81,7 +75,7 @@ class Database:
     
     # 매개변수의 키와 값으로 SQL 쿼리문에 작성할 조건문을 작성
     @staticmethod
-    def to_parameter_statement(seperator=" AND ", *args, **kwargs):
+    def to_parameter_statement(seperator=", ", *args, **kwargs):
         parameter_list = []
 
         if args == ():    # 키워드 인수로 비교 값이 전달될 경우
