@@ -44,14 +44,17 @@ def condition_row_to_dict(row) -> dict:
 
     if row['bollinger_band'] != None:
         condition_dict['bollinger_band'] = {
-            'period': row['bollinger_band']['period'],
-            'standard_deviation': row['bollinger_band']['standard_deviation']
+            'length': row['bollinger_band']['length'],
+            'interval': row['bollinger_band']['interval'],
+            'coefficient': row['bollinger_band']['coefficient']
         }
     
     if row['rsi'] != None:
         condition_dict['rsi'] = {
-            'period': row['rsi']['period'],
-            'quantity': row['rsi']['quantity']
+            'length': row['rsi']['length'],
+            'interval': row['rsi']['interval'],
+            'max_value': row['rsi']['max_value'],
+            'min_value': row['rsi']['min_value']
         }
         
     return condition_dict
