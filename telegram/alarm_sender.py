@@ -39,7 +39,9 @@ async def send_tick_alarm():
 
     for enabled_channel in enabled_channel_list:
         channel_id = enabled_channel['ChannelID']
-        channel = Channel(db, channel_id)
+        chat_id = enabled_channel['ChatID']
+        chat = Chat(db, chat_id)
+        channel = Channel(db, channel_id, chat)
 
         alarm_list += channel.get_alarms(type='TickAlarm', is_enabled=True)
 
@@ -69,7 +71,9 @@ async def send_whale_alarm():
 
     for enabled_channel in enabled_channel_list:
         channel_id = enabled_channel['ChannelID']
-        channel = Channel(db, channel_id)
+        chat_id = enabled_channel['ChatID']
+        chat = Chat(db, chat_id)
+        channel = Channel(db, channel_id, chat)
 
         alarm_list += channel.get_alarms(type='WhaleAlarm', is_enabled=True)
     
