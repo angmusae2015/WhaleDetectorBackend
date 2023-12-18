@@ -213,12 +213,12 @@ class Binance(Proxy):
         check_time = datetime.now()
         ask_units = [
             OrderbookUnit(
-                item, check_time, True, unit_tuple[0], unit_tuple[1]
+                item, check_time, True, float(unit_tuple[0]), float(unit_tuple[1])
             ) for unit_tuple in ask_orderbook_unit_tuple_list
         ]
         bid_units = [
             OrderbookUnit(
-                item, check_time, False, unit_tuple[0], unit_tuple[1]
+                item, check_time, False, float(unit_tuple[0]), float(unit_tuple[1])
             ) for unit_tuple in bid_orderbook_unit_tuple_list
         ]
 
