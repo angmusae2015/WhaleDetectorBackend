@@ -9,6 +9,7 @@ from telebot.async_telebot import AsyncTeleBot
 from database.database import Database
 from database.alarm import Alarm
 from database.chat import Chat
+from database.channel import Channel
 
 
 def get_token(file_path):
@@ -27,6 +28,7 @@ whale_alarm_interval = 30
 
 async def send_tick_alarm():
     enabled_chat_list = db.get_chats(alarm_option=True).values()
+    enabled_channel_list = db.get_channels(alarm_option=True).values()
     alarm_list = []
     
     for enabled_chat in enabled_chat_list:
@@ -34,6 +36,12 @@ async def send_tick_alarm():
         chat = Chat(db, chat_id)
 
         alarm_list += chat.get_alarms(type='TickAlarm', is_enabled=True)
+
+    for enabled_channel in enabled_channel_list:
+        channel_id = enabled_channel['ChannelID']
+        channel = Channel(db, channel_id)
+
+        alarm_list += channel.get_alarms(type='TickAlarm', is_enabled=True)
 
     for alarm in alarm_list:
         exchange_proxy = alarm.get_item().exchange.get_proxy()
@@ -50,6 +58,7 @@ async def send_tick_alarm():
 
 async def send_whale_alarm():
     enabled_chat_list = db.get_chats(alarm_option=True).values()
+    enabled_channel_list = db.get_channels(alarm_option=True).values()
     alarm_list = []
     
     for enabled_chat in enabled_chat_list:
@@ -57,6 +66,12 @@ async def send_whale_alarm():
         chat = Chat(db, chat_id)
 
         alarm_list += chat.get_alarms(type='WhaleAlarm', is_enabled=True)
+
+    for enabled_channel in enabled_channel_list:
+        channel_id = enabled_channel['ChannelID']
+        channel = Channel(db, channel_id)
+
+        alarm_list += channel.get_alarms(type='WhaleAlarm', is_enabled=True)
     
     for alarm in alarm_list:
         exchange_proxy = alarm.get_item().exchange.get_proxy()
