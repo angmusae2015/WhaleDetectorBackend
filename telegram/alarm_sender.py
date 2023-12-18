@@ -46,6 +46,8 @@ async def send_tick_alarm():
         alarm_list += channel.get_alarms(type='TickAlarm', is_enabled=True)
 
     for alarm in alarm_list:
+        if not alarm.is_enabled():
+            continue
         exchange_proxy = alarm.get_item().exchange.get_proxy()
 
         base_symbol = alarm.get_item().base_symbol
@@ -78,6 +80,8 @@ async def send_whale_alarm():
         alarm_list += channel.get_alarms(type='WhaleAlarm', is_enabled=True)
     
     for alarm in alarm_list:
+        if not alarm.is_enabled():
+            continue
         exchange_proxy = alarm.get_item().exchange.get_proxy()
 
         base_symbol = alarm.get_item().base_symbol
