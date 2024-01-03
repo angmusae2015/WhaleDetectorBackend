@@ -237,7 +237,7 @@ def post_alarm(channel_id: str):
     try:
         added_alarm_id = database.insert(
             table_name='alarm',
-            channel_id=params['channel_id'],
+            channel_id=channel_id,
             exchange_id=params['exchange_id'],
             base_symbol=params['base_symbol'],
             quote_symbol=params['quote_symbol'],

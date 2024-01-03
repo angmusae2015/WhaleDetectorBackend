@@ -132,12 +132,22 @@ class Database:
         
     
     # SELECT문 실행
-    def select(self, table_name: str, **kwargs) -> ResultSet:
-        query = f"SELECT * FROM {table_name}"
+    def select(self, table_name: str, columns=[], **kwargs) -> ResultSet:
+        query = f"SELECT "
+
+        if columns != []:
+            query += ', '.join(columns)
+        
+        else:
+            query += "*"
+
+        query += f" FROM {table_name} "
     
         # 조건 지정
         if kwargs != {}:
-            query += " WHERE " + self.to_parameter_statement(**kwargs)
+            query += "WHERE " + self.to_parameter_statement(seperator=" AND ", **kwargs)
+
+        query += ";"
 
         result_set = self.execute(query)
 
